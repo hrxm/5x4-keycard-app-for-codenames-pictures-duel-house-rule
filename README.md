@@ -1,5 +1,7 @@
 # Codenames: Pictures Duet 5x4 Keycard
 
+Play here: https://hrxm.github.io/5x4-keycard-app-for-codenames-pictures-duel-house-rule/
+
 Unofficial fan-made pass-and-play keycard helper for playing **Codenames: Pictures** with **Codenames: Duet** rules on a 5x4 grid.
 
 This project is a single-file web app: open `index.html` in a browser and play.
