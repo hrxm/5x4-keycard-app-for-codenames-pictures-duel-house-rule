@@ -1,0 +1,2467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Codenames: Pictures Duet 5x4 Keycard - House Rule Generator</title>
+    <meta name="description" content="Unofficial pass-and-play 5x4 keycard generator for playing Codenames: Pictures with Codenames: Duet rules. Includes session restore, timer, and time tokens.">
+    <meta name="keywords" content="Codenames Pictures, Codenames Duet, Codenames Pictures Duet, 5x4 keycard, board game house rule, pass and play">
+    <meta property="og:title" content="Codenames: Pictures Duet 5x4 Keycard">
+    <meta property="og:description" content="Unofficial 5x4 house-rule keycard helper for Codenames: Pictures with Codenames: Duet rules.">
+    <meta property="og:type" content="website">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Rajdhani:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-base: #07170f;
+            --bg-panel: #0b2418;
+            --border-tech: #66727a;
+            --text-main: #b8c2b7;
+            --text-bright: #f3f7ee;
+            --danger: #ff2a2a;
+            --danger-glow: rgba(255, 42, 42, 0.4);
+            --bystander: #f1d4ad;
+            --frame-metal: #9aa5ad;
+            --frame-shadow: #5b6570;
+            --action-lime: #b6ff00;
+            --action-green: #22d132;
+            --page-core: rgba(30, 90, 55, 0.86);
+            --page-mid: rgba(3, 24, 15, 0.96);
+            --page-edge: rgba(2, 12, 9, 0.98);
+            --grid-line: rgba(6, 28, 18, 0.55);
+            --panel-wash: rgba(10, 54, 34, 0.72);
+            --panel-strong: rgba(4, 28, 18, 0.86);
+            --chrome-wash: rgba(167, 178, 188, 0.22);
+            --theme-accent: #b6ff00;
+
+            /* Theme: Duet */
+            --team-a: #5f8f2f;
+            --team-a-ink: #d3f0a8;
+            --team-a-glow: rgba(95, 143, 47, 0.5);
+            --team-a-dim: rgba(95, 143, 47, 0.28);
+            --team-b: #b9ff2f;
+            --team-b-ink: #ecffd0;
+            --team-b-glow: rgba(185, 255, 47, 0.46);
+            --team-b-dim: rgba(185, 255, 47, 0.22);
+
+            --font-display: 'Rajdhani', sans-serif;
+            --font-mono: 'IBM Plex Mono', monospace;
+            --chrome-height: 148px;
+            --bottom-controls-height: 96px;
+        }
+
+        /* Themes */
+        body.theme-standard {
+            --team-a: #ff9f1c;
+            --team-a-ink: #ffd28a;
+            --team-a-glow: rgba(255, 159, 28, 0.5);
+            --team-a-dim: rgba(255, 159, 28, 0.28);
+            --team-b: #9b5cff;
+            --team-b-ink: #dbc7ff;
+            --team-b-glow: rgba(155, 92, 255, 0.5);
+            --team-b-dim: rgba(155, 92, 255, 0.26);
+            --page-core: rgba(88, 52, 10, 0.88);
+            --page-mid: rgba(31, 18, 5, 0.96);
+            --page-edge: rgba(12, 7, 3, 0.98);
+            --grid-line: rgba(96, 60, 18, 0.5);
+            --panel-wash: rgba(85, 51, 10, 0.72);
+            --panel-strong: rgba(39, 23, 6, 0.9);
+            --chrome-wash: rgba(190, 158, 100, 0.22);
+            --theme-accent: #ffb000;
+        }
+
+        body.theme-pictures {
+            --team-a: #ff4d45;
+            --team-a-ink: #ffc2bd;
+            --team-a-glow: rgba(255, 77, 69, 0.52);
+            --team-a-dim: rgba(255, 77, 69, 0.3);
+            --team-b: #35a8ff;
+            --team-b-ink: #c3e7ff;
+            --team-b-glow: rgba(53, 168, 255, 0.48);
+            --team-b-dim: rgba(53, 168, 255, 0.24);
+            --page-core: rgba(30, 46, 76, 0.88);
+            --page-mid: rgba(9, 17, 31, 0.96);
+            --page-edge: rgba(4, 8, 15, 0.98);
+            --grid-line: rgba(38, 72, 112, 0.45);
+            --panel-wash: rgba(18, 38, 66, 0.72);
+            --panel-strong: rgba(7, 17, 32, 0.92);
+            --chrome-wash: rgba(108, 140, 178, 0.2);
+            --theme-accent: #2f9bff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior: none;
+        }
+
+        body {
+            font-family: var(--font-mono);
+            background-color: #7e8994;
+            color: var(--text-main);
+            margin: 0;
+            height: 100dvh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            background-image:
+                radial-gradient(circle at 50% 24%, var(--page-core), var(--page-mid) 46%, var(--page-edge) 80%),
+                linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0 9%, transparent 9% 100%),
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: auto, 220px 100%, 28px 28px, 28px 28px;
+            padding: 0.55rem;
+            position: relative;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* CRT Scanline Overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.6;
+        }
+
+        /* Header UI */
+        .terminal-header {
+            width: 100%;
+            max-width: 1180px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            margin-bottom: 0.45rem;
+            flex-shrink: 0;
+            animation: bootUp 1s ease-out forwards;
+            background: linear-gradient(180deg, var(--chrome-wash), rgba(72, 83, 92, 0.12));
+            border: 1px solid rgba(190, 202, 210, 0.35);
+            border-radius: 10px;
+            padding: 0.45rem 0.6rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .title-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-tech);
+            padding-bottom: 0.45rem;
+            position: relative;
+        }
+
+        .title-block::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 30%;
+            height: 2px;
+            background: var(--text-bright);
+            box-shadow: 0 0 10px var(--text-bright);
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.25rem, 2.3vw, 2rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--text-bright);
+            margin: 0 0 0.1rem 0;
+            line-height: 1;
+            text-transform: uppercase;
+        }
+
+        .sys-status {
+            font-size: 0.7rem;
+            color: var(--team-a);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulse 2s infinite;
+            display: block;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(180deg, var(--panel-wash), var(--panel-strong));
+            border: 1px solid rgba(190, 202, 210, 0.32);
+            padding: 0.45rem 0.65rem;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+            backdrop-filter: blur(5px);
+            gap: 0.75rem;
+        }
+
+        .dashboard.compact {
+            justify-content: center;
+            padding: 0.28rem 0.45rem;
+        }
+
+        .post-card-controls {
+            width: 100%;
+            max-width: 1180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.55rem;
+            margin-top: 0.32rem;
+            flex-shrink: 0;
+        }
+
+        .utility-panel {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* Timer */
+        .timer-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            gap: 0.3rem;
+        }
+
+        .timer-button {
+            font-family: var(--font-display);
+            font-size: clamp(1.35rem, 2.6vw, 2rem);
+            font-weight: 700;
+            color: var(--text-bright);
+            line-height: 1;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            min-width: 112px;
+            padding: 0.26rem 0.72rem;
+            border-color: #444;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), var(--panel-strong));
+        }
+
+        .timer-button.paused {
+            border-color: var(--danger);
+            color: var(--danger);
+            box-shadow: 0 0 14px var(--danger-glow);
+        }
+
+        .timer-reset {
+            width: 44px;
+            min-width: 44px;
+            border-color: rgba(255, 42, 42, 0.35);
+            color: var(--danger);
+            padding: 0 !important;
+            font-size: 1.1rem !important;
+            line-height: 1;
+        }
+
+        .timer-reset.hidden {
+            display: none;
+        }
+
+        .btn-sm {
+            padding: 0.18rem 0.42rem !important;
+            font-size: 0.72rem !important;
+        }
+
+        /* Tokens */
+        .token-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 0;
+        }
+
+        .token-label {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .token-bank {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .token {
+            width: 34px;
+            height: 28px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 700;
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .token:active {
+            transform: scale(0.9);
+            filter: brightness(1.2);
+        }
+
+        .token::before {
+            margin-right: 3px;
+            font-size: 0.78rem;
+        }
+
+        /* 1: Innocent */
+        .token.state-innocent {
+            background: var(--bystander);
+            color: #8c7b5d;
+            border: 1px solid #d7b98e;
+            box-shadow: 0 0 5px rgba(212, 196, 168, 0.5);
+        }
+
+        .token.state-innocent::before {
+            content: '👤';
+        }
+
+        .token.extra-token.state-innocent {
+            background: #465866;
+            border-color: #6f8794;
+            color: #dce8ee;
+        }
+
+        .token.easy-token.state-innocent {
+            background: #2b7cb5;
+            /* original duet easy blue */
+            border-color: #216596;
+            color: #fff;
+        }
+
+        /* 2: File */
+        .token.state-file {
+            background: #6bb023;
+            /* green */
+            color: #fff;
+            border: 1px solid #8cc63f;
+            box-shadow: 0 0 8px rgba(107, 176, 35, 0.6);
+            transform: scale(1.05);
+        }
+
+        .token.state-file::before {
+            content: '📁';
+        }
+
+        /* 3: Used */
+        .token.state-used {
+            background: #222;
+            color: #444;
+            border: 1px solid #333;
+            box-shadow: none;
+            opacity: 0.4;
+            transform: scale(0.95);
+        }
+
+        .token.state-used::before {
+            content: '✕';
+            filter: grayscale(1) brightness(0.5);
+        }
+
+        .token.optional-token.state-used {
+            background: #101611;
+            color: #536056;
+            border-color: #2a342d;
+            opacity: 0.72;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+        }
+
+        .token.optional-token.state-used::before {
+            content: '🔒';
+            filter: grayscale(1) brightness(0.7);
+        }
+
+        .token.danger-token.state-innocent {
+            border-color: #c6533f;
+        }
+
+        .token.danger-token.state-file {
+            background: #b04123;
+            border-color: #c6533f;
+            box-shadow: 0 0 8px rgba(176, 65, 35, 0.8);
+        }
+
+        /* Buttons */
+        .btn {
+            background: transparent;
+            border: 1px solid rgba(190, 202, 210, 0.34);
+            color: var(--text-main);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            filter: brightness(1.2);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.4s ease;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .btn:hover::before {
+                left: 100%;
+            }
+
+            .btn:hover {
+                background: rgba(255, 255, 255, 0.05);
+                color: var(--text-bright);
+                border-color: #666;
+            }
+        }
+
+        #btn-A {
+            background: var(--team-a-dim);
+            color: var(--team-a-ink);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), inset 4px 0 0 var(--team-a);
+        }
+
+        #btn-A:hover {
+            border-color: var(--team-a);
+            color: var(--text-bright);
+        }
+
+        #btn-B {
+            background: var(--team-b-dim);
+            color: var(--team-b-ink);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03), inset -4px 0 0 var(--team-b);
+        }
+
+        #btn-B:hover {
+            border-color: var(--team-b);
+            color: var(--text-bright);
+        }
+
+        #btn-A.active {
+            background: var(--team-a);
+            color: var(--bg-base);
+            border-color: var(--team-a);
+            box-shadow: 0 0 18px var(--team-a-glow), inset 0 0 0 2px rgba(255, 255, 255, 0.22);
+        }
+
+        #btn-B.active {
+            background: var(--team-b);
+            color: var(--bg-base);
+            border-color: var(--team-b);
+            box-shadow: 0 0 18px var(--team-b-glow), inset 0 0 0 2px rgba(255, 255, 255, 0.22);
+        }
+
+        #btn-Hide.active {
+            background: linear-gradient(180deg, rgba(190, 202, 210, 0.24), rgba(70, 76, 82, 0.6));
+            color: var(--text-bright);
+            border-color: #666;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-consume {
+            background: rgba(255, 42, 42, 0.1);
+            border-color: rgba(255, 42, 42, 0.3);
+            color: var(--danger);
+        }
+
+        .btn-consume:hover {
+            background: var(--danger);
+            color: #fff;
+            box-shadow: 0 0 15px var(--danger-glow);
+        }
+
+        .btn-new {
+            min-width: 92px;
+        }
+
+        .btn-new.armed {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: #fff;
+            box-shadow: 0 0 18px var(--danger-glow);
+        }
+
+        /* Themes Selector */
+        .theme-cycle-btn {
+            min-width: 92px;
+            min-height: 42px;
+            padding: 0.32rem 0.58rem;
+            font-size: 0.78rem;
+            color: var(--text-bright);
+            border-color: rgba(190, 202, 210, 0.42);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: inset 4px 0 0 var(--team-a), inset -4px 0 0 var(--team-b);
+        }
+
+        /* View Controls */
+        .view-controls {
+            display: flex;
+            gap: 0.35rem;
+            width: 100%;
+            max-width: 1180px;
+            margin-bottom: 0.4rem;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .view-controls .btn {
+            flex: 1;
+            padding: 0.56rem 0.5rem;
+            min-height: 44px;
+            font-size: 1rem;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        /* Grid Area */
+        .view-section {
+            display: none;
+            width: 100%;
+            max-width: 1180px;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .view-section.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            animation: scanlineOpen 0.26s cubic-bezier(0.2, 0.9, 0.2, 1) forwards;
+            will-change: opacity, transform, clip-path;
+        }
+
+        .view-section.closing {
+            display: flex;
+            justify-content: center;
+            animation: scanlineClose 0.22s cubic-bezier(0.55, 0, 0.8, 0.2) forwards;
+            will-change: opacity, transform, clip-path;
+        }
+
+        .grid-card {
+            background: linear-gradient(180deg, var(--panel-strong), rgba(1, 14, 10, 0.95));
+            padding: 0.55rem;
+            border: 2px solid rgba(190, 202, 210, 0.42);
+            border-radius: 10px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.62), inset 0 0 40px rgba(0, 0, 0, 0.45), 0 0 0 4px rgba(86, 98, 107, 0.34);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: min(100%, calc((100dvh - var(--chrome-height)) * 1.25), 1180px);
+            aspect-ratio: 5 / 4;
+            height: auto;
+            max-height: calc(100dvh - var(--chrome-height) - var(--bottom-controls-height));
+            overflow: hidden;
+        }
+
+        /* Card decorative elements */
+        .grid-card::before,
+        .grid-card::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-tech);
+            pointer-events: none;
+        }
+
+        .grid-card::before {
+            top: -1px;
+            left: -1px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .grid-card::after {
+            bottom: -1px;
+            right: -1px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            aspect-ratio: 5 / 4;
+            margin: auto;
+        }
+
+        .cell {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: #122118;
+            border: 1px solid rgba(0, 0, 0, 0.52);
+            border-radius: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .cell:active {
+            transform: scale(0.95);
+            filter: brightness(1.2);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .cell:hover {
+                transform: scale(1.05);
+                z-index: 10;
+            }
+        }
+
+        /* Cell Types */
+        .cell.agent::before {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(0, 0, 0, 0.2) 4px, rgba(0, 0, 0, 0.2) 8px);
+        }
+
+        #gridA .cell.agent {
+            border-color: var(--team-a);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 0 10px var(--team-a-glow);
+        }
+
+        #gridB .cell.agent {
+            border-color: var(--team-b);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8), 0 0 10px var(--team-b-glow);
+        }
+
+        #gridA .cell.agent::after {
+            content: '◈';
+            font-size: clamp(1.2rem, 6vh, 2.2rem);
+            color: var(--team-a);
+            filter: drop-shadow(0 0 5px var(--team-a));
+        }
+
+        #gridB .cell.agent::after {
+            content: '◈';
+            font-size: clamp(1.2rem, 6vh, 2.2rem);
+            color: var(--team-b);
+            filter: drop-shadow(0 0 5px var(--team-b));
+        }
+
+        .cell.bystander {
+            background: linear-gradient(180deg, #f4d9b3, #eac698);
+            border-color: #d7b98e;
+        }
+
+        .cell.bystander::after {
+            content: '👤';
+            color: #8c7b5d;
+            font-size: clamp(1rem, 5vh, 1.8rem);
+            opacity: 1;
+        }
+
+        .cell.assassin {
+            background: #000000;
+            border-color: #444;
+        }
+
+        .cell.assassin::after {
+            content: '💀';
+            font-size: clamp(1.5rem, 7vh, 2.5rem);
+            color: #888;
+            font-family: var(--font-display);
+            font-weight: 300;
+            filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.8));
+        }
+
+        .audit-badge {
+            display: none;
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            z-index: 3;
+            padding: 1px 5px;
+            border: 1px solid currentColor;
+            background: rgba(0, 0, 0, 0.74);
+            color: var(--text-bright);
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: 0;
+        }
+
+        /* Standby */
+        #standby-view {
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid rgba(190, 202, 210, 0.42);
+            border-radius: 10px;
+            background: radial-gradient(circle at 50% 30%, var(--panel-wash), var(--panel-strong)), repeating-linear-gradient(0deg, #0d1b14, #0d1b14 2px, #101f17 2px, #101f17 4px);
+            position: relative;
+        }
+
+        .lock-icon {
+            font-size: clamp(2.4rem, 7vw, 4rem);
+            margin-bottom: 0.6rem;
+            opacity: 0.8;
+        }
+
+        #standby-view h3 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            color: var(--text-bright);
+            letter-spacing: 5px;
+            margin: 0 0 1rem 0;
+        }
+
+        #standby-view p {
+            color: #888;
+            text-align: center;
+            max-width: 360px;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .session-panel {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .title-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 0.28rem;
+        }
+
+        .header-feedback {
+            width: fit-content;
+        }
+
+        .session-readout {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.12rem;
+        }
+
+        .session-label {
+            font-family: var(--font-mono);
+            font-size: 0.55rem;
+            color: #666;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .session-id {
+            font-family: var(--font-display);
+            font-size: clamp(0.9rem, 1.7vw, 1.2rem);
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-bright);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-tech);
+            padding: 0.22rem 0.48rem;
+            height: 44px;
+            min-width: 188px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .session-id.copied {
+            color: var(--bg-base);
+            background: var(--team-a);
+            border-color: var(--team-a);
+            box-shadow: 0 0 14px var(--team-a-glow);
+        }
+
+        .reload-btn {
+            min-width: 64px;
+            height: 44px;
+            padding: 0.2rem 0.55rem;
+            font-size: 0.9rem;
+            line-height: 1;
+            border-color: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #btn-LoadToggle,
+        .session-loader .btn {
+            height: 44px;
+            min-width: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .session-loader {
+            display: none;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .session-panel.load-open .session-loader {
+            display: flex;
+            flex-basis: 100%;
+            justify-content: flex-end;
+        }
+
+        .info-actions {
+            display: flex;
+            gap: 0.3rem;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .info-btn {
+            padding: 0.22rem 0.5rem;
+            font-size: 0.68rem;
+            color: #d8e2d5;
+            background: var(--panel-wash);
+        }
+
+        .app-footer {
+            width: 100%;
+            max-width: 1180px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.32rem;
+            padding: 0.28rem 0.55rem;
+            color: rgba(232, 238, 229, 0.72);
+            font-size: 0.68rem;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), var(--panel-strong));
+            border: 1px solid rgba(190, 202, 210, 0.22);
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .footer-note {
+            line-height: 1.35;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .footer-links a,
+        .modal-content a {
+            color: var(--theme-accent);
+            text-decoration: none;
+        }
+
+        .feedback-cta {
+            display: flex;
+            align-items: center;
+            gap: 0.32rem;
+            padding: 0.2rem 0.28rem;
+            border: 1px solid var(--theme-accent);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 14px rgba(255, 255, 255, 0.06);
+        }
+
+        .feedback-label {
+            color: var(--text-bright);
+            font-family: var(--font-display);
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .feedback-btn {
+            min-height: 30px;
+            padding: 0.24rem 0.5rem;
+            border: 1px solid rgba(190, 202, 210, 0.3);
+            color: var(--text-bright) !important;
+            background: var(--panel-wash);
+            font-family: var(--font-display);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .footer-links .info-btn,
+        .footer-links .donate-btn {
+            min-height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .donate-btn {
+            padding: 0.22rem 0.5rem;
+            color: var(--bg-base) !important;
+            background: var(--theme-accent);
+            border: 1px solid var(--theme-accent);
+            font-family: var(--font-display);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.08);
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            place-items: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.68);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-backdrop.open {
+            display: grid;
+        }
+
+        .info-modal {
+            width: min(92vw, 640px);
+            max-height: 82dvh;
+            overflow-y: auto;
+            background: linear-gradient(180deg, var(--panel-strong), var(--page-edge));
+            border: 2px solid rgba(190, 202, 210, 0.48);
+            border-radius: 12px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            padding: 1rem;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid rgba(190, 202, 210, 0.25);
+            padding-bottom: 0.55rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-family: var(--font-display);
+            font-size: 1.55rem;
+            letter-spacing: 1px;
+            color: var(--text-bright);
+        }
+
+        .modal-close {
+            min-width: 38px;
+            padding: 0.25rem 0.45rem;
+        }
+
+        .modal-panel {
+            display: none;
+        }
+
+        .modal-panel.active {
+            display: block;
+        }
+
+        .modal-panel p,
+        .modal-panel li {
+            line-height: 1.6;
+            color: #e3ebde;
+            font-size: 0.9rem;
+        }
+
+        .modal-panel ul {
+            padding-left: 1.1rem;
+        }
+
+        .modal-panel li {
+            margin-bottom: 0.35rem;
+        }
+
+        .modal-panel a {
+            color: var(--theme-accent);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .session-input {
+            width: 128px;
+            height: 44px;
+            background: #070707;
+            border: 1px solid var(--border-tech);
+            color: var(--text-bright);
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            padding: 0 0.35rem;
+            text-transform: uppercase;
+        }
+
+        .action-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 0.22rem;
+            align-items: center;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 1rem;
+            transform: translateX(-50%) translateY(16px);
+            z-index: 1000;
+            min-width: min(90vw, 320px);
+            padding: 0.6rem 0.85rem;
+            background: rgba(8, 12, 10, 0.96);
+            border: 1px solid var(--team-a);
+            color: var(--text-bright);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-align: center;
+            text-transform: uppercase;
+            box-shadow: 0 0 22px var(--team-a-glow);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .toast.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Animations */
+        @keyframes bootUp {
+            0% {
+                opacity: 0;
+                filter: blur(10px);
+                transform: translateY(-20px);
+            }
+
+            100% {
+                opacity: 1;
+                filter: blur(0);
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scanlineOpen {
+            0% {
+                opacity: 0;
+                clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%);
+                transform: translateY(8px) scaleY(0.94);
+            }
+
+            50% {
+                opacity: 1;
+                clip-path: polygon(0 24%, 100% 24%, 100% 76%, 0 76%);
+                transform: translateY(0) scaleY(0.98);
+            }
+
+            100% {
+                opacity: 1;
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+                transform: scaleY(1);
+            }
+        }
+
+        @keyframes scanlineClose {
+            0% {
+                opacity: 1;
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+                transform: scaleY(1);
+            }
+
+            50% {
+                opacity: 0.75;
+                clip-path: polygon(0 30%, 100% 30%, 100% 70%, 0 70%);
+                transform: translateY(-4px) scaleY(0.98);
+            }
+
+            100% {
+                opacity: 0;
+                clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%);
+                transform: translateY(-8px) scaleY(0.94);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        @keyframes dangerPulse {
+            0% {
+                box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.1);
+            }
+
+            100% {
+                box-shadow: inset 0 0 30px rgba(255, 0, 0, 0.3);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            :root {
+                --chrome-height: 156px;
+                --bottom-controls-height: 96px;
+            }
+
+            body {
+                padding: 0.35rem;
+            }
+
+            .terminal-header {
+                order: 1;
+                margin-top: 0;
+                margin-bottom: 0.25rem;
+                width: 100%;
+                min-width: 0;
+                gap: 0.28rem;
+            }
+
+            .view-controls {
+                order: 2;
+                margin-bottom: 0.3rem;
+                flex-direction: row;
+                width: 100%;
+                min-width: 0;
+                gap: 0.35rem;
+            }
+
+            .view-controls .btn {
+                padding: 0.56rem 0.35rem;
+                min-height: 46px;
+                font-size: 0.92rem;
+                width: auto;
+                min-width: 0;
+            }
+
+            .view-section {
+                order: 3;
+                width: 100%;
+                flex: 1;
+            }
+
+            .post-card-controls {
+                order: 4;
+                min-width: 0;
+            }
+
+            .app-footer {
+                order: 5;
+                min-width: 0;
+            }
+
+            .title-block {
+                flex-direction: row;
+                align-items: center;
+                text-align: left;
+                gap: 0.35rem;
+            }
+
+            .title-block h1 {
+                font-size: 1.08rem;
+                letter-spacing: 1px;
+            }
+
+            .title-block::after {
+                display: none;
+            }
+
+            .timer-wrapper {
+                align-items: stretch;
+            }
+
+            .timer-button {
+                font-size: 1.08rem;
+                min-width: 94px;
+                min-height: 38px;
+                padding: 0.25rem 0.45rem;
+            }
+
+            .dashboard {
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                gap: 0.32rem;
+                padding: 0.2rem 0.25rem;
+                clip-path: none;
+            }
+
+            .token-panel {
+                align-items: center;
+            }
+
+            .token-label {
+                text-align: center !important;
+            }
+
+            .grid-card {
+                padding: 0.32rem;
+                width: 100%;
+                box-sizing: border-box;
+                max-height: calc(100dvh - var(--chrome-height) - var(--bottom-controls-height)) !important;
+            }
+
+            .grid {
+                gap: 4px;
+                width: 100%;
+                max-width: none;
+            }
+            /* Mobile view: show only the active view */
+            .view-section { display: none; }
+            .view-section.active { display: flex; flex-direction: column; }
+            .token-panel { display: flex; flex-direction: column; }
+            .title-block h1 { font-size: 1.02rem !important; margin: 0; }
+            .sys-status { font-size: 0.54rem; }
+            .timer-wrapper { font-size: 0.8rem; }
+            .dashboard { gap: 0.2rem; padding: 0.16rem 0.2rem; }
+            .view-controls .btn { padding: 0.62rem 0.25rem; font-size: 0.9rem; }
+            .btn-new { margin-left: 0; min-width: 76px; }
+            .theme-label { margin-bottom: 6px; text-align: center; }
+            .token-label { display: none; }
+            .token { width: 28px; height: 24px; font-size: 0.68rem; }
+            .token::before { display: none; }
+            .token-bank { gap: 3px; max-width: none; justify-content: center; }
+            .btn-sm { padding: 0.22rem 0.4rem !important; font-size: 0.68rem !important; }
+            .session-panel { align-items: center; justify-content: center; gap: 0.25rem; }
+            .session-label { display: none; }
+            .session-id { font-size: 0.72rem; padding: 0.2rem 0.3rem; min-width: 118px; max-width: 118px; height: 38px; overflow: hidden; text-overflow: ellipsis; }
+            .reload-btn,
+            #btn-LoadToggle,
+            .session-loader .btn { height: 38px; min-height: 38px; }
+            .reload-btn { min-width: 54px; order: 1; }
+            .session-readout { order: 2; }
+            #btn-LoadToggle { order: 3; }
+            #btn-LoadToggle { min-width: 54px; }
+            .session-input { width: 90px; height: 38px; font-size: 0.6rem; }
+            .session-loader .btn-sm { padding-inline: 0.28rem !important; }
+            .theme-cycle-btn,
+            .audit-btn {
+                min-width: 56px;
+                min-height: 34px;
+                padding: 0.22rem 0.36rem;
+                font-size: 0.72rem;
+            }
+
+            .theme-cycle-btn {
+                min-width: 84px;
+            }
+
+            .cell {
+                width: 100%;
+                height: 100%;
+                aspect-ratio: auto;
+            }
+
+            .cell.agent::after,
+            .cell.assassin::after {
+                font-size: clamp(1.35rem, 6vw, 1.9rem);
+            }
+
+            .cell.bystander::after {
+                font-size: clamp(1.05rem, 5vw, 1.45rem);
+            }
+
+        }
+
+        @media (max-width: 520px) {
+            :root {
+                --chrome-height: 174px;
+                --bottom-controls-height: 106px;
+            }
+
+            html,
+            body {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            .dashboard {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 0.35rem;
+            }
+
+            .title-block {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.24rem;
+            }
+
+            .title-stack {
+                gap: 0.18rem;
+            }
+
+            .header-feedback {
+                width: 100%;
+            }
+
+            .terminal-header,
+            .view-controls,
+            .view-section,
+            .post-card-controls,
+            .app-footer {
+                width: calc(100vw - 0.7rem);
+                max-width: calc(100vw - 0.7rem);
+            }
+
+            .title-block h1 {
+                font-size: 0.88rem !important;
+                line-height: 1.05;
+                white-space: normal;
+                overflow-wrap: anywhere;
+            }
+
+            .footer-note {
+                display: block;
+                max-width: 100%;
+                overflow-wrap: anywhere;
+            }
+
+            .token-panel,
+            .timer-wrapper,
+            .action-panel,
+            .utility-panel {
+                width: 100%;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .sys-status {
+                display: none;
+            }
+
+            .session-panel {
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+                min-width: 0;
+            }
+
+            .info-actions {
+                justify-content: space-between;
+            }
+
+            .session-panel.load-open .session-loader {
+                justify-content: space-between;
+            }
+
+            .session-id {
+                min-width: 94px;
+                max-width: 94px;
+            }
+
+            .session-input {
+                width: 82px;
+            }
+
+            .token-bank { max-width: 232px; }
+
+            .token {
+                width: 27px;
+                height: 23px;
+            }
+
+            .token.state-used {
+                position: relative;
+                opacity: 0.72;
+            }
+
+            .token.state-used::after {
+                content: '';
+                position: absolute;
+                width: 120%;
+                height: 2px;
+                background: #555;
+                transform: rotate(-28deg);
+            }
+
+            .token.state-file {
+                box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.35), 0 0 8px rgba(107, 176, 35, 0.45);
+            }
+
+            .action-panel {
+                gap: 0;
+            }
+
+            .post-card-controls {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 0.35rem;
+                margin-top: 0.28rem;
+            }
+
+            .view-controls {
+                gap: 0.18rem;
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .view-controls .btn {
+                width: 100%;
+                padding: 0.48rem 0.08rem;
+                font-size: 0.68rem;
+                letter-spacing: 0.5px;
+                clip-path: none;
+            }
+
+            .app-footer {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+                font-size: 0.62rem;
+                gap: 0.35rem;
+            }
+
+            .footer-links {
+                justify-content: center;
+                width: 100%;
+                min-width: 0;
+            }
+
+            .feedback-cta {
+                justify-content: center;
+                flex-wrap: wrap;
+                width: 100%;
+                min-width: 0;
+            }
+
+            .feedback-label {
+                width: 100%;
+            }
+
+            .feedback-btn {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .donate-btn {
+                align-self: center;
+            }
+
+            .post-card-controls .timer-wrapper,
+            .post-card-controls .utility-panel {
+                width: auto;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .post-card-controls .timer-button,
+            .post-card-controls .timer-reset {
+                width: auto;
+            }
+
+            .timer-button {
+                min-width: 92px;
+            }
+        }
+
+        #debug-rules {
+            display: none;
+        }
+
+        .audit-btn {
+            background: rgba(80, 65, 35, 0.16);
+            border-color: rgba(255, 170, 0, 0.2);
+            color: rgba(220, 186, 116, 0.72);
+            padding: 0.32rem 0.58rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+            min-width: 56px;
+            min-height: 42px;
+        }
+
+        .audit-dialog {
+            width: min(94vw, 980px);
+        }
+
+        .audit-warning {
+            border: 1px solid rgba(255, 170, 0, 0.3);
+            color: #d9b368;
+            background: rgba(255, 170, 0, 0.08);
+            padding: 0.65rem 0.75rem;
+            margin: 0 0 0.85rem 0;
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .audit-matrix-note {
+            color: rgba(232, 238, 229, 0.76);
+            font-size: 0.72rem;
+            line-height: 1.45;
+            margin: 0 0 0.85rem 0;
+            text-align: center;
+        }
+
+        .audit-confirm-actions {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0.85rem;
+        }
+
+        .audit-reveal-btn {
+            min-width: 150px;
+            border-color: rgba(255, 170, 0, 0.38);
+            color: #d9b368;
+            background: rgba(255, 170, 0, 0.1);
+        }
+
+        .audit-reveal-btn.hidden {
+            display: none;
+        }
+
+        .audit-payload.hidden {
+            display: none;
+        }
+
+        .audit-layout {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.85rem;
+        }
+
+        .audit-card {
+            border: 1px solid rgba(190, 202, 210, 0.28);
+            background: rgba(0, 0, 0, 0.22);
+            padding: 0.55rem;
+            border-radius: 8px;
+        }
+
+        .audit-card h3 {
+            margin: 0 0 0.45rem 0;
+            font-family: var(--font-display);
+            color: var(--text-bright);
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .audit-grid {
+            gap: 5px;
+        }
+
+        .audit-grid .cell {
+            min-height: 58px;
+            pointer-events: none;
+        }
+
+        .audit-grid.alpha .cell.agent {
+            border-color: var(--team-a);
+            box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.7), 0 0 8px var(--team-a-glow);
+        }
+
+        .audit-grid.bravo .cell.agent {
+            border-color: var(--team-b);
+            box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.7), 0 0 8px var(--team-b-glow);
+        }
+
+        .audit-grid.alpha .cell.agent::after {
+            content: '◈';
+            color: var(--team-a);
+            font-size: 1.35rem;
+            filter: drop-shadow(0 0 5px var(--team-a));
+        }
+
+        .audit-grid.bravo .cell.agent::after {
+            content: '◈';
+            color: var(--team-b);
+            font-size: 1.35rem;
+            filter: drop-shadow(0 0 5px var(--team-b));
+        }
+
+        .audit-grid .audit-badge {
+            display: block;
+            font-size: 0.52rem;
+        }
+
+        .audit-grid .cell[data-self="A"][data-peer="A"] {
+            outline: 2px solid rgba(120, 255, 90, 0.65);
+            outline-offset: -3px;
+        }
+
+        .audit-grid .cell[data-self="X"][data-peer="X"] {
+            background: linear-gradient(180deg, #1d0000, #000);
+            outline: 2px solid rgba(255, 42, 42, 0.8);
+            outline-offset: -3px;
+        }
+
+        .audit-grid .cell[data-self="A"][data-peer="X"],
+        .audit-grid .cell[data-self="X"][data-peer="A"] {
+            outline: 2px dashed rgba(255, 170, 0, 0.82);
+            outline-offset: -3px;
+        }
+
+        @media (max-width: 720px) {
+            .audit-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .audit-grid .cell {
+                min-height: 44px;
+            }
+        }
+    </style>
+</head>
+
+<body class="theme-duet">
+
+    <div class="terminal-header">
+        <div class="title-block">
+            <div class="title-stack">
+                <h1>CODENAMES: PICTURES DUET 5x4</h1>
+                <span class="sys-status">FOR CODENAMES: PICTURES WITH CODENAMES: DUET RULES</span>
+                <span class="feedback-cta header-feedback" aria-label="Feedback links">
+                    <span class="feedback-label">Leave feedback</span>
+                    <a class="feedback-btn" href="https://boardgamegeek.com/thread/3704610/house-rule-codenames-pictures-duet-hr-the-5x4-tigh" target="_blank" rel="noopener">BGG</a>
+                    <a class="feedback-btn" href="https://www.reddit.com/r/boardgames/comments/1t6di9p/i_just_made_house_rule_to_play_codenames_pictures/" target="_blank" rel="noopener">Reddit</a>
+                </span>
+            </div>
+            <div class="session-panel">
+                <button id="btn-New" class="btn reload-btn" onclick="requestNewKeycard()" aria-label="Create new card" title="Create new card">NEW</button>
+                <div class="session-readout">
+                    <span class="session-label">Session</span>
+                    <button id="sessionId" class="session-id" onclick="copySessionId()" aria-label="Copy session ID" title="Copy session ID">----</button>
+                </div>
+                <button id="btn-LoadToggle" class="btn btn-sm" onclick="toggleSessionLoad()" aria-label="Open session loader" title="Open session loader">LOAD</button>
+                <div class="session-loader">
+                    <input id="sessionInput" class="session-input" type="text" inputmode="latin" autocomplete="off" spellcheck="false" placeholder="SESSION">
+                    <button class="btn btn-sm" onclick="loadSessionFromInput()" aria-label="Load session" title="Load session">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard compact">
+            <div class="token-panel">
+                <span class="token-label">TIME</span>
+                <div class="token-bank" id="tokenBank"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="debug-rules">
+        <h4>MATRIX ALGORITHM (12-AGENT)</h4>
+        <p>2 Shared Green | 4 Exclusive A | 4 Exclusive B | 1 Cross-Risk A | 1 Cross-Risk B | 1 Mutual Assassin | 7 Pure
+            Bystanders</p>
+    </div>
+
+    <div class="view-controls">
+        <button id="btn-A" class="btn" onclick="switchView('A')">ALPHA</button>
+        <button id="btn-Hide" class="btn active" onclick="switchView('Hide')">LOCK</button>
+        <button id="btn-B" class="btn" onclick="switchView('B')">BRAVO</button>
+    </div>
+
+    <div id="standby-view" class="view-section active">
+        <div class="lock-icon">🔒</div>
+        <h3>LOCKED</h3>
+        <p>Pass device before revealing next grid.</p>
+    </div>
+
+    <div id="view-A" class="view-section">
+        <div class="grid-card">
+            <div class="grid" id="gridA"></div>
+        </div>
+    </div>
+
+    <div id="view-B" class="view-section">
+        <div class="grid-card">
+            <div class="grid" id="gridB"></div>
+        </div>
+    </div>
+
+    <div class="post-card-controls">
+        <div class="timer-wrapper">
+            <button id="timer" class="btn timer-button" onclick="toggleTimer()" aria-label="Pause timer" title="Tap to pause">00:00</button>
+            <button id="timerReset" class="btn btn-sm timer-reset hidden" onclick="resetTimer()" aria-label="Reset timer" title="Reset timer">↺</button>
+        </div>
+        <div class="utility-panel">
+            <button id="themeCycle" class="btn theme-cycle-btn" onclick="cycleTheme()" aria-label="Cycle theme" title="Cycle theme">THEME GL</button>
+            <button id="btn-Audit" class="btn btn-sm audit-btn" onclick="toggleDebugMode()" aria-label="Open audit result" title="Open audit result">AUD</button>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <span class="footer-note">House Rule made by Hiro Miyakawa, with thanks to all the playtesters. Unofficial fan-made keycard helper.</span>
+        <nav class="footer-links" aria-label="Footer links">
+            <button class="btn info-btn" onclick="openInfoPanel('about')">About</button>
+            <button class="btn info-btn" onclick="openInfoPanel('rules')">Rules</button>
+            <button class="btn info-btn" onclick="openInfoPanel('refs')">Refs</button>
+            <a class="donate-btn" href="https://www.buymeacoffee.com/" target="_blank" rel="noopener">☕ Coffee</a>
+        </nav>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="infoModal" class="modal-backdrop" onclick="handleModalBackdrop(event)">
+        <div class="info-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <div class="modal-header">
+                <h2 id="modalTitle">About</h2>
+                <button class="btn modal-close" onclick="closeInfoPanel()" aria-label="Close panel">×</button>
+            </div>
+
+            <section id="panel-about" class="modal-panel">
+                <p>Unofficial 5x4 keycard helper for playing Codenames: Pictures with Codenames: Duet rules.</p>
+                <p>Use LOCK before passing the device. Copy the Session ID to restore the same keycard later.</p>
+                <p>Please playtest and leave feedback on BGG or Reddit.</p>
+                <p>Not affiliated with Czech Games Edition. Codenames and related marks belong to their respective owners.</p>
+            </section>
+
+            <section id="panel-rules" class="modal-panel">
+                <p>Setup: use 20 Codenames: Pictures cards in a 5x4 grid.</p>
+                <p>Start with 7 time tokens. Use 8 tokens for an easier first play.</p>
+                <p>Each player sees 7 agents, 2 assassins, and 11 non-agents. Win by finding all 12 unique agents.</p>
+                <p>The hidden matrix is:</p>
+                <ul>
+                    <li>2 shared agents</li>
+                    <li>4 Alpha-only agents</li>
+                    <li>4 Bravo-only agents</li>
+                    <li>1 Alpha agent / Bravo assassin cross-risk</li>
+                    <li>1 Bravo agent / Alpha assassin cross-risk</li>
+                    <li>1 mutual assassin</li>
+                    <li>7 bystanders</li>
+                </ul>
+                <p>Play like Codenames: Duet. When time tokens are gone, sudden death begins: no more clues, and any wrong guess loses.</p>
+            </section>
+
+            <section id="panel-refs" class="modal-panel">
+                <p>Rules, references, and feedback:</p>
+                <ul>
+                    <li><a href="https://boardgamegeek.com/thread/3704610/house-rule-codenames-pictures-duet-hr-the-5x4-tigh" target="_blank" rel="noopener">BGG house-rule thread</a> - playtest reports welcome.</li>
+                    <li><a href="https://www.reddit.com/r/boardgames/comments/1t6di9p/i_just_made_house_rule_to_play_codenames_pictures/" target="_blank" rel="noopener">Reddit discussion</a> - leave feedback here too.</li>
+                    <li><a href="https://boardgamegeek.com/boardgame/224037/codenames-duet" target="_blank" rel="noopener">BoardGameGeek: Codenames Duet</a></li>
+                    <li><a href="https://boardgamegeek.com/boardgame/198773/codenames-pictures" target="_blank" rel="noopener">BoardGameGeek: Codenames Pictures</a></li>
+                    <li><a href="https://czechgames.com/files/rules/codenames-duet-rules-en.pdf" target="_blank" rel="noopener">Codenames Duet rulebook</a></li>
+                    <li><a href="https://czechgames.com/files/rules/codenames-pictures-rules-en.pdf" target="_blank" rel="noopener">Codenames Pictures rulebook</a></li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <div id="auditModal" class="modal-backdrop" onclick="handleAuditBackdrop(event)">
+        <div class="info-modal audit-dialog" role="dialog" aria-modal="true" aria-labelledby="auditTitle">
+            <div class="modal-header">
+                <h2 id="auditTitle">Audit Result</h2>
+                <button class="btn modal-close" onclick="closeAuditPanel()" aria-label="Close audit">×</button>
+            </div>
+            <p class="audit-warning">Audit reveals both keycards and the full result. Use only after the game is finished.</p>
+            <p class="audit-matrix-note">2 Shared | 4 Alpha-only | 4 Bravo-only | 2 Cross-risk | 1 Mutual assassin | 7 Bystanders</p>
+            <div class="audit-confirm-actions">
+                <button id="auditReveal" class="btn audit-reveal-btn" onclick="revealAuditResults()">SHOW RESULT</button>
+            </div>
+            <div id="auditPayload" class="audit-layout audit-payload hidden">
+                <section class="audit-card">
+                    <h3>ALPHA</h3>
+                    <div id="auditGridA" class="grid audit-grid alpha"></div>
+                </section>
+                <section class="audit-card">
+                    <h3>BRAVO</h3>
+                    <div id="auditGridB" class="grid audit-grid bravo"></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'codename-pictures-duet-state-v2';
+        const SESSION_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        const SESSION_MASK = 0x6D2B79F5A3C41n;
+        const SESSION_PREFIX = 'K1';
+        const PAIR_TO_DIGIT = { AA: 0, AI: 1, IA: 2, AX: 3, XA: 4, XX: 5, II: 6 };
+        const DIGIT_TO_PAIR = ['AA', 'AI', 'IA', 'AX', 'XA', 'XX', 'II'];
+        const THEME_ORDER = ['duet', 'standard', 'pictures'];
+        const THEME_LABELS = { duet: 'THEME GL', standard: 'THEME OP', pictures: 'THEME RB' };
+
+        let currentMapA = [];
+        let currentMapB = [];
+        let currentTheme = 'duet';
+        let currentSide = 'Hide';
+        let sessionId = '----';
+        let timerStartedAt = null;
+        let newKeycardTimeout = null;
+        let toastTimeout = null;
+
+        function vibrate(ms = 10) {
+            if ("vibrate" in navigator) {
+                navigator.vibrate(ms);
+            }
+        }
+
+        function lockZoom() {
+            ['gesturestart', 'gesturechange', 'gestureend'].forEach(eventName => {
+                document.addEventListener(eventName, event => event.preventDefault(), { passive: false });
+            });
+
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', event => {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) event.preventDefault();
+                lastTouchEnd = now;
+            }, { passive: false });
+
+            document.addEventListener('touchmove', event => {
+                if (event.touches.length > 1) event.preventDefault();
+            }, { passive: false });
+        }
+
+        function formatTime(totalSeconds) {
+            const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const secs = (totalSeconds % 60).toString().padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+
+        function renderTimer() {
+            const timerButton = document.getElementById('timer');
+            if (!timerButton) return;
+            timerButton.innerText = formatTime(seconds);
+            updateTimerUi();
+        }
+
+        function showToast(message, ms = 1400) {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.innerText = message;
+            toast.classList.add('visible');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('visible');
+            }, ms);
+        }
+
+        function cleanSessionId(value) {
+            return String(value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        }
+
+        function encodeBase32(number) {
+            if (number === 0n) return SESSION_ALPHABET[0];
+            let output = '';
+            let value = number;
+            while (value > 0n) {
+                output = SESSION_ALPHABET[Number(value % 32n)] + output;
+                value /= 32n;
+            }
+            return output;
+        }
+
+        function decodeBase32(text) {
+            return cleanSessionId(text).split('').reduce((value, char) => {
+                const index = SESSION_ALPHABET.indexOf(char);
+                if (index < 0) throw new Error('Invalid session character');
+                return value * 32n + BigInt(index);
+            }, 0n);
+        }
+
+        function sessionChecksum(payload) {
+            return payload.split('').reduce((sum, char, index) => sum + char.charCodeAt(0) * (index + 7), 17) % 32;
+        }
+
+        function formatSessionId(raw) {
+            return raw.replace(/(.{4})/g, '$1-').replace(/-$/, '');
+        }
+
+        function encodeSessionId(mapA, mapB) {
+            let packed = 0n;
+            let multiplier = 1n;
+
+            for (let i = 0; i < 20; i++) {
+                const digit = PAIR_TO_DIGIT[(mapA[i] || 'I') + (mapB[i] || 'I')];
+                if (digit === undefined) throw new Error('Invalid keycard matrix');
+                packed += BigInt(digit) * multiplier;
+                multiplier *= 7n;
+            }
+
+            const payload = encodeBase32(packed ^ SESSION_MASK).padStart(12, SESSION_ALPHABET[0]);
+            const check = SESSION_ALPHABET[sessionChecksum(payload)];
+            return formatSessionId(SESSION_PREFIX + payload + check);
+        }
+
+        function decodeSessionId(id) {
+            const cleaned = cleanSessionId(id);
+            if (!cleaned.startsWith(SESSION_PREFIX) || cleaned.length < 15) throw new Error('Invalid session ID');
+
+            const body = cleaned.slice(2);
+            const payload = body.slice(0, -1);
+            const check = body.slice(-1);
+            if (SESSION_ALPHABET[sessionChecksum(payload)] !== check) throw new Error('Session checksum mismatch');
+
+            let packed = decodeBase32(payload) ^ SESSION_MASK;
+            const mapA = [];
+            const mapB = [];
+
+            for (let i = 0; i < 20; i++) {
+                const digit = Number(packed % 7n);
+                const pair = DIGIT_TO_PAIR[digit];
+                if (!pair) throw new Error('Invalid session payload');
+                mapA.push(pair[0]);
+                mapB.push(pair[1]);
+                packed /= 7n;
+            }
+
+            if (packed !== 0n) throw new Error('Session payload overflow');
+            validateMatrix(mapA, mapB);
+            return { mapA, mapB };
+        }
+
+        function validateMatrix(mapA, mapB) {
+            const counts = { AA: 0, AI: 0, IA: 0, AX: 0, XA: 0, XX: 0, II: 0 };
+            for (let i = 0; i < 20; i++) {
+                const key = mapA[i] + mapB[i];
+                if (!(key in counts)) throw new Error('Invalid matrix cell');
+                counts[key]++;
+            }
+
+            const valid = counts.AA === 2 && counts.AI === 4 && counts.IA === 4 && counts.AX === 1 && counts.XA === 1 && counts.XX === 1 && counts.II === 7;
+            if (!valid) throw new Error('Matrix distribution mismatch');
+        }
+
+        function renderSession() {
+            const sessionButton = document.getElementById('sessionId');
+            if (sessionButton) sessionButton.innerText = sessionId;
+        }
+
+        function copySessionId() {
+            vibrate(8);
+            const plainId = cleanSessionId(sessionId);
+            if (navigator.clipboard && plainId) navigator.clipboard.writeText(sessionId);
+            const sessionButton = document.getElementById('sessionId');
+            if (!sessionButton) return;
+            sessionButton.classList.add('copied');
+            sessionButton.innerText = 'COPIED';
+            showToast('Session copied');
+            clearTimeout(sessionButton.copyTimeout);
+            sessionButton.copyTimeout = setTimeout(() => {
+                sessionButton.classList.remove('copied');
+                renderSession();
+            }, 850);
+        }
+
+        function loadSessionFromInput() {
+            const input = document.getElementById('sessionInput');
+            try {
+                const decoded = decodeSessionId(input.value);
+                currentMapA = decoded.mapA;
+                currentMapB = decoded.mapB;
+                sessionId = encodeSessionId(currentMapA, currentMapB);
+                forceLockView();
+                renderGrid('gridA', currentMapA, currentMapB);
+                renderGrid('gridB', currentMapB, currentMapA);
+                renderSession();
+                resetTimer(false);
+                createTokens();
+                startTimer();
+                input.value = '';
+                closeSessionLoad();
+                vibrate(45);
+                showToast('Session loaded / locked');
+                saveState();
+            } catch (error) {
+                vibrate(120);
+                input.value = 'INVALID';
+                setTimeout(() => { input.value = ''; }, 900);
+            }
+        }
+
+        function toggleSessionLoad() {
+            const sessionPanel = document.querySelector('.session-panel');
+            const loadButton = document.getElementById('btn-LoadToggle');
+            const input = document.getElementById('sessionInput');
+            if (!sessionPanel || !loadButton) return;
+            const isOpen = sessionPanel.classList.toggle('load-open');
+            loadButton.innerText = isOpen ? 'CLOSE' : 'LOAD';
+            loadButton.setAttribute('aria-label', isOpen ? 'Close session loader' : 'Open session loader');
+            if (isOpen && input) input.focus();
+        }
+
+        function closeSessionLoad() {
+            const sessionPanel = document.querySelector('.session-panel');
+            const loadButton = document.getElementById('btn-LoadToggle');
+            if (sessionPanel) sessionPanel.classList.remove('load-open');
+            if (loadButton) {
+                loadButton.innerText = 'LOAD';
+                loadButton.setAttribute('aria-label', 'Open session loader');
+            }
+        }
+
+        function cycleTheme() {
+            const nextTheme = THEME_ORDER[(THEME_ORDER.indexOf(currentTheme) + 1) % THEME_ORDER.length];
+            setTheme(nextTheme);
+        }
+
+        function bindSessionInput() {
+            const input = document.getElementById('sessionInput');
+            if (!input) return;
+            input.addEventListener('keydown', event => {
+                if (event.key === 'Enter') loadSessionFromInput();
+            });
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') {
+                    closeInfoPanel();
+                    closeAuditPanel();
+                }
+            });
+        }
+
+        function openInfoPanel(panelName) {
+            const modal = document.getElementById('infoModal');
+            const title = document.getElementById('modalTitle');
+            if (!modal || !title) return;
+
+            document.querySelectorAll('.modal-panel').forEach(panel => panel.classList.remove('active'));
+            const panel = document.getElementById('panel-' + panelName);
+            if (!panel) return;
+
+            const titles = {
+                about: 'About',
+                rules: 'House Rules',
+                refs: 'References'
+            };
+
+            title.innerText = titles[panelName] || 'Info';
+            panel.classList.add('active');
+            modal.classList.add('open');
+            vibrate(8);
+        }
+
+        function closeInfoPanel() {
+            const modal = document.getElementById('infoModal');
+            if (modal) modal.classList.remove('open');
+        }
+
+        function handleModalBackdrop(event) {
+            if (event.target && event.target.id === 'infoModal') closeInfoPanel();
+        }
+
+        function handleAuditBackdrop(event) {
+            if (event.target && event.target.id === 'auditModal') closeAuditPanel();
+        }
+
+        function generateKeycard() {
+            // Distribution for 5x4 Codenames Pictures Duet (12 Agent Matrix)
+            const deck = [
+                ...Array(2).fill({ a: 'A', b: 'A' }), // 2 Shared Green
+                ...Array(4).fill({ a: 'A', b: 'I' }), // 4 Exclusive A
+                ...Array(4).fill({ a: 'I', b: 'A' }), // 4 Exclusive B
+                ...Array(1).fill({ a: 'A', b: 'X' }), // 1 Cross-Risk (Green A / Black B)
+                ...Array(1).fill({ a: 'X', b: 'A' }), // 1 Cross-Risk (Black A / Green B)
+                ...Array(1).fill({ a: 'X', b: 'X' }), // 1 Mutual Assassin
+                ...Array(7).fill({ a: 'I', b: 'I' })  // 7 Pure Bystanders
+            ];
+
+            // Fisher-Yates Shuffle
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+
+            currentMapA = deck.map(card => card.a);
+            currentMapB = deck.map(card => card.b);
+            sessionId = encodeSessionId(currentMapA, currentMapB);
+
+            renderGrid('gridA', currentMapA, currentMapB);
+            renderGrid('gridB', currentMapB, currentMapA);
+            renderSession();
+        }
+
+        function resetGame(saveAfterReset = true, showLoadedAlert = true) {
+            vibrate(30);
+            forceLockView();
+            generateKeycard();
+            resetTimer(false);
+            createTokens();
+            clearNewKeycardArm();
+            startTimer();
+            if (showLoadedAlert) showToast('New card loaded / locked');
+            if (saveAfterReset) saveState();
+        }
+
+        function requestNewKeycard() {
+            const btn = document.getElementById('btn-New');
+            if (btn.classList.contains('armed')) {
+                resetGame();
+                return;
+            }
+
+            vibrate(80);
+            btn.classList.add('armed');
+            btn.innerText = 'OK?';
+            btn.setAttribute('aria-label', 'Confirm new card');
+            clearTimeout(newKeycardTimeout);
+            newKeycardTimeout = setTimeout(clearNewKeycardArm, 3000);
+        }
+
+        function clearNewKeycardArm() {
+            const btn = document.getElementById('btn-New');
+            if (!btn) return;
+            btn.classList.remove('armed');
+            btn.innerText = 'NEW';
+            btn.setAttribute('aria-label', 'Create new card');
+            clearTimeout(newKeycardTimeout);
+            newKeycardTimeout = null;
+        }
+
+        function setTheme(themeName, persist = true) {
+            if (persist) vibrate(15);
+            currentTheme = themeName;
+            document.body.classList.remove('theme-duet', 'theme-standard', 'theme-pictures');
+            document.body.classList.add('theme-' + themeName);
+            const themeButton = document.getElementById('themeCycle');
+            if (themeButton) themeButton.innerText = THEME_LABELS[themeName] || 'THEME GL';
+            if (persist) saveState();
+        }
+
+        // Timer Logic
+        let seconds = 0;
+        let timerInterval = null;
+
+        function updateTimerUi() {
+            const timerButton = document.getElementById('timer');
+            const resetButton = document.getElementById('timerReset');
+            if (!timerButton || !resetButton) return;
+
+            const paused = !timerInterval;
+            timerButton.classList.toggle('paused', paused);
+            timerButton.setAttribute('aria-label', paused ? 'Start timer' : 'Pause timer');
+            timerButton.setAttribute('title', paused ? 'Tap to start' : 'Tap to pause');
+            resetButton.classList.toggle('hidden', !paused);
+        }
+
+        function toggleTimer() {
+            if (timerInterval) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+            timerStartedAt = Date.now();
+            timerInterval = setInterval(() => {
+                seconds++;
+                renderTimer();
+                saveState();
+            }, 1000);
+            updateTimerUi();
+            saveState();
+        }
+
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            timerStartedAt = null;
+            updateTimerUi();
+            saveState();
+        }
+
+        function resetTimer(saveAfterReset = true) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerStartedAt = null;
+            seconds = 0;
+            renderTimer();
+            startTimer();
+            if (saveAfterReset) saveState();
+        }
+
+        // View Logic
+        function switchView(side, persist = true) {
+            if (persist) vibrate(20);
+            const currentActiveBtn = document.querySelector('.view-controls .btn.active');
+            const activeSide = currentActiveBtn ? currentActiveBtn.id.replace('btn-', '') : 'Hide';
+
+            // If clicking the already active side, go to Hide (unless clicking Hide itself)
+            if (side === activeSide && side !== 'Hide') {
+                side = 'Hide';
+            }
+
+            const currentView = document.querySelector('.view-section.active');
+            const targetView = side === 'Hide' ? document.getElementById('standby-view') : document.getElementById(`view-${side}`);
+
+            if (currentView && currentView !== targetView) {
+                currentView.classList.add('closing');
+                setTimeout(() => {
+                    currentView.classList.remove('active', 'closing');
+                    showTargetView(targetView, side, persist);
+                }, 280);
+            } else {
+                if (currentView) currentView.classList.remove('active', 'closing');
+                showTargetView(targetView, side, persist);
+            }
+        }
+
+        function showTargetView(view, side, persist = true) {
+            document.querySelectorAll('.view-controls .btn').forEach(el => el.classList.remove('active'));
+            view.classList.add('active');
+            document.getElementById(`btn-${side}`).classList.add('active');
+            currentSide = side;
+            if (persist) saveState();
+        }
+
+        function forceLockView() {
+            document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active', 'closing'));
+            document.querySelectorAll('.view-controls .btn').forEach(button => button.classList.remove('active'));
+            document.getElementById('standby-view').classList.add('active');
+            document.getElementById('btn-Hide').classList.add('active');
+            currentSide = 'Hide';
+        }
+
+        // Audit Logic
+        function toggleDebugMode() {
+            vibrate(50);
+            const payload = document.getElementById('auditPayload');
+            const revealButton = document.getElementById('auditReveal');
+            if (payload) payload.classList.add('hidden');
+            if (revealButton) revealButton.classList.remove('hidden');
+            const modal = document.getElementById('auditModal');
+            if (modal) modal.classList.add('open');
+        }
+
+        function revealAuditResults() {
+            vibrate(70);
+            renderAuditGrid('auditGridA', currentMapA, currentMapB);
+            renderAuditGrid('auditGridB', currentMapB, currentMapA);
+            const payload = document.getElementById('auditPayload');
+            const revealButton = document.getElementById('auditReveal');
+            if (payload) payload.classList.remove('hidden');
+            if (revealButton) revealButton.classList.add('hidden');
+        }
+
+        function closeAuditPanel() {
+            const modal = document.getElementById('auditModal');
+            if (modal) modal.classList.remove('open');
+        }
+
+        function syncDebugButton() {
+            const debugBtn = document.getElementById('btn-Audit');
+            if (!debugBtn) return;
+            debugBtn.classList.remove('debug-active');
+            debugBtn.innerText = 'AUD';
+        }
+
+        // Token Logic
+        function tokenStateFromClass(token) {
+            if (token.classList.contains('state-file')) return 'file';
+            if (token.classList.contains('state-used')) return 'used';
+            return 'innocent';
+        }
+
+        function setTokenState(token, state) {
+            token.classList.remove('state-innocent', 'state-file', 'state-used');
+            token.classList.add('state-' + state);
+            token.dataset.state = state;
+            token.setAttribute('aria-label', `Time token ${token.innerText}: ${state}`);
+        }
+
+        function getTokenStates() {
+            return Array.from(document.querySelectorAll('#tokenBank .token')).map(tokenStateFromClass);
+        }
+
+        function createTokens(states = null) {
+            const bank = document.getElementById('tokenBank');
+            bank.innerHTML = '';
+            for (let i = 1; i <= 11; i++) {
+                const t = document.createElement('div');
+                let extraClass = '';
+                if (i >= 8) extraClass += ' optional-token';
+                if (i === 8 || i === 9) extraClass += ' extra-token';
+                if (i === 10 || i === 11) extraClass += ' easy-token';
+
+                t.className = 'token' + extraClass;
+                t.innerText = i;
+                t.setAttribute('role', 'button');
+                t.setAttribute('tabindex', '0');
+                const defaultState = i <= 7 ? 'innocent' : 'used';
+                setTokenState(t, states && states[i - 1] ? states[i - 1] : defaultState);
+
+                t.onclick = function () {
+                    vibrate(10);
+                    if (this.classList.contains('state-innocent')) {
+                        setTokenState(this, 'used');
+                    } else if (this.classList.contains('state-used')) {
+                        setTokenState(this, 'file');
+                    } else {
+                        setTokenState(this, 'innocent');
+                    }
+                    saveState();
+                };
+                t.onkeydown = function (event) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        this.click();
+                    }
+                };
+                bank.appendChild(t);
+            }
+        }
+
+        // Grid Generator
+        function renderGrid(containerId, mapData, peerMapData) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            mapData.forEach((cellType, idx) => {
+                const peerType = peerMapData[idx];
+                const div = document.createElement('div');
+                div.className = 'cell ' + (cellType === 'A' ? 'agent' : cellType === 'X' ? 'assassin' : 'bystander');
+                div.setAttribute('data-self', cellType);
+                div.setAttribute('data-peer', peerType);
+                div.setAttribute('aria-label', `Cell ${idx + 1}: ${cellType}`);
+                div.setAttribute('role', 'button');
+                div.innerHTML = `<span class="audit-badge">${cellType}/${peerType}</span>`;
+                div.onclick = () => vibrate(5);
+                container.appendChild(div);
+            });
+        }
+
+        function renderAuditGrid(containerId, mapData, peerMapData) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            mapData.forEach((cellType, idx) => {
+                const peerType = peerMapData[idx];
+                const div = document.createElement('div');
+                div.className = 'cell ' + (cellType === 'A' ? 'agent' : cellType === 'X' ? 'assassin' : 'bystander');
+                div.setAttribute('data-self', cellType);
+                div.setAttribute('data-peer', peerType);
+                div.setAttribute('aria-label', `Audit cell ${idx + 1}: ${cellType}/${peerType}`);
+                div.innerHTML = `<span class="audit-badge">${cellType}/${peerType}</span>`;
+                container.appendChild(div);
+            });
+        }
+
+        function saveState() {
+            const state = {
+                currentMapA,
+                currentMapB,
+                currentTheme,
+                currentSide,
+                sessionId,
+                seconds,
+                timerRunning: Boolean(timerInterval),
+                timerStartedAt,
+                tokenStates: getTokenStates(),
+                savedAt: Date.now()
+            };
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
+        function loadState() {
+            try {
+                const rawState = localStorage.getItem(STORAGE_KEY);
+                if (!rawState) return false;
+
+                const state = JSON.parse(rawState);
+                if (!Array.isArray(state.currentMapA) || !Array.isArray(state.currentMapB) || state.currentMapA.length !== 20 || state.currentMapB.length !== 20) {
+                    return false;
+                }
+
+                currentMapA = state.currentMapA;
+                currentMapB = state.currentMapB;
+                currentTheme = state.currentTheme || 'duet';
+                currentSide = 'Hide';
+                sessionId = state.sessionId || encodeSessionId(currentMapA, currentMapB);
+                seconds = Number.isFinite(state.seconds) ? state.seconds : 0;
+
+                if (state.timerRunning && state.savedAt) {
+                    seconds += Math.max(0, Math.floor((Date.now() - state.savedAt) / 1000));
+                }
+
+                setTheme(currentTheme, false);
+                renderGrid('gridA', currentMapA, currentMapB);
+                renderGrid('gridB', currentMapB, currentMapA);
+                renderSession();
+                createTokens(state.tokenStates);
+                renderTimer();
+                forceLockView();
+
+                if (state.timerRunning) startTimer();
+                updateTimerUi();
+                return true;
+            } catch (error) {
+                localStorage.removeItem(STORAGE_KEY);
+                return false;
+            }
+        }
+
+        // Initialize
+        lockZoom();
+        bindSessionInput();
+        if (!loadState()) resetGame(true, false);
+    </script>
+
+    <script>
+        syncDebugButton();
+    </script>
+</body>
+
+</html>
