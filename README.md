@@ -53,6 +53,7 @@ Please playtest and leave feedback:
 
 - BGG thread: https://boardgamegeek.com/thread/3704610/house-rule-codenames-pictures-duet-hr-the-5x4-tigh
 - Reddit thread: https://www.reddit.com/r/boardgames/comments/1t6di9p/i_just_made_house_rule_to_play_codenames_pictures/
+- Instagram: https://www.instagram.com/hrxm/
 
 Useful feedback:
 
